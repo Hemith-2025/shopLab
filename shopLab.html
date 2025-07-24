@@ -1,0 +1,546 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>shopLab</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baumans&family=Lexend+Deca:wght@100..900&display=swap');
+    :root {
+      --primary-default-color: rgb(255, 85, 0);
+      --primary-light-color: rgb(255, 202, 176);
+      --primary-dark-color: rgb(123, 41, 0);
+      @media (prefers-color-scheme : light) {
+        --bg: var(--primary-light-color);
+        --text: var(--primary-dark-color);
+      }
+      @media (prefers-color-scheme : dark) {
+        --bg: #181818;
+        --text: var(--primary-light-color);
+      }
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: 0.2s;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      align-items: center;
+      gap: 1em;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 1.5em;
+      padding: 0 1em;
+      background: var(--primary-light-color);
+      overflow-x: hidden;
+    }
+    button {
+      cursor: pointer;
+      padding: 0.5em 1em;
+      background-color: blue;
+      outline: none;
+      &:hover , &.active {
+        background: var(--primary-light-color);
+        color: white;
+        box-shadow:
+          0 0.5em 1em var(--theme),
+          inset 0 -0.2em 5em var(--theme)
+        ;
+      }
+    }
+    h1 {
+      color: var(--primary-default-color);
+      font-family: "Baumans" , system-ui;
+      font-weight: 800;
+      margin-top: 1em;
+    }
+    .addItemBoxCover {
+      width: 100%;
+      user-select: none;
+    }
+    .addItemBoxButton {
+      height: 50px;
+      width: 200px;
+      padding: 0.5em 1em;
+      border-radius: 0.5em;
+      background: transparent;
+      color: var(--primary-default-color);
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      --theme: var(--primary-default-color);
+    }
+    .inputCover {
+      position: relative;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      background: transparent;
+      height: 50px;
+      width: 100%;
+      border-radius: 1em;
+      border: 3px solid var(--primary-default-color);
+      overflow: hidden;
+      & input {
+        height: 100%;
+        width: 100%;
+        border: none;
+        background: transparent;
+        color: var(--primary-default-color);
+        padding-left: 1em;
+        font-size: 1.1em;
+        letter-spacing: 0.1em;
+        outline: none;
+        z-index: 1;
+        &::placeholder {
+          color: var(--primary-dark-color);
+          opacity: 0.4;
+        }
+      }
+      & div {
+        display: grid;
+        place-items: center;
+        position: absolute;
+        right: 160px;
+        height: 46px;
+        width: 46px;
+        background: var(--primary-light-color);
+        z-index: 2;
+        cursor: pointer;
+        --theme: var(--primary-light-color);
+        user-select: none;
+        &:hover {
+          box-shadow:
+            -0.2em 0 0.5em var(--theme),
+            -0.2em 0 1.0em var(--theme),
+            -0.2em 0 1.5em var(--theme),
+            -0.2em 0 2.0em var(--theme),
+            -0.2em 0 2.5em var(--theme)
+          ;
+        }
+      }
+      & button {
+        height: 100%;
+        width: 180px;
+        z-index: 3;
+        border: none;
+        background: var(--primary-default-color);
+        color: white;
+        --theme: var(--primary-default-color);
+        user-select: none;
+        &:hover {
+          box-shadow:
+            -0.2em 0 0.5em var(--theme),
+            -0.2em 0 1.0em var(--theme),
+            -0.2em 0 1.5em var(--theme),
+            -0.2em 0 2.0em var(--theme),
+            -0.2em 0 2.5em var(--theme)
+          ;
+        }
+      }
+    }
+    ul {
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      align-items: center;
+      gap: 1em;
+      height: 100%;
+      width: 100%;
+      background: transparent;
+      user-select: none;
+    }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 70px;
+      width: 100%;
+      background: var(--primary-light-color);
+      padding: 1em;
+      border-radius: 1em;
+      transform-origin: bottom;
+      box-shadow: 0 0.5em 1em #00000040;
+      animation: animateItem linear both;
+      animation-timeline: view();
+      animation-range: 0% 100%;
+    }
+    .item.checked {
+      & input[type="checkbox"] {
+        background: var(--primary-default-color);
+        box-shadow: 0 0.2em 0.5em #00000050;
+      }
+    }
+    .item.checked input[type="text"] {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+    .item input[type="checkbox"] {
+      min-height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      appearance: none;
+      background: transparent;
+      border: 2px solid var(--primary-default-color);
+      cursor: pointer;
+      margin-right: 1em;
+    }
+    .item input[type="text"] , .item input[type="text"]:disabled {
+      height: 38px;
+      width: 75%;
+      border: none;
+      outline: none;
+      font-size: 1.1em;
+      background: transparent;
+      color: var(--primary-default-color);
+      border: 2px solid transparent;
+      user-select: none;
+      pointer-events: none;
+    }
+    .item input[type="text"].editMode {
+      color: black;
+      padding-left: 0.3em;
+      border: 2px solid black;
+      border-radius: 0.5em;
+      user-select: all;
+      pointer-events: all;
+    }
+    .item div {
+      display: grid;
+      place-items: center;
+      background-color: transparent;
+      color: var(--primary-dark-color);
+      min-height: 48px;
+      min-width: 48px;
+      margin-left: 0.5em;
+      cursor: pointer;
+      border-radius: 0.5em;
+      &:hover , &.active {
+        background: var(--primary-light-color);
+        color: var(--primary-dark-color);
+        box-shadow:
+          0 0.2em 0.5em var(--primary-default-color),
+          inset 0 -0.2em 1em var(--primary-default-color)
+        ;
+      }
+    }
+    .item button {
+      display: grid;
+      place-items: center;
+      height: 38px;
+      width: 80px;
+      margin-left: 0.5em;
+      padding: 0.5em 1em;
+      border-radius: 0.5em;
+      background: transparent;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      --theme: red;
+      user-select: none;
+      &:hover {
+        background: var(--primary-light-color);
+        color: white;
+        box-shadow:
+          0 0.5em 1em var(--theme),
+          inset 0 -0.2em 3em var(--theme)
+        ;
+      }
+    }
+    ::selection {
+      background: var(--primary-default-color);
+      color: white;
+    }
+    ::-webkit-scrollbar {
+      height: 14px;
+      width: 14px;
+      appearance: none;
+      background: var(--primary-light-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-default-color);
+      border: 4px solid var(--primary-light-color);
+      border-radius: 7px;
+    }
+    @keyframes animateItem {
+      0% {
+        scale: 0.5;
+        filter: blur(2em);
+      }
+      16% {
+        scale: 1;
+        filter: blur(0em);
+      }
+      86% {
+        scale: 1;
+        filter: blur(0em);
+      }
+      100% {
+        scale: 0.5;
+        filter: blur(2em);
+      }
+    }
+    @media (max-width : 726px) {
+      body {
+        font-size: 1.5em;
+      }
+      .addItemBoxCover {
+        width: 100%;
+        & > button {
+          width: 100%;
+        }
+      }
+      .inputCover {
+        height: 120px;
+        width: 100%;
+        & input {
+          height: 50%;
+          transform: translateY(-45%);
+          &::placeholder {
+            font-size: 0.6em;
+            font-weight: 600;
+          }
+        }
+        & div {
+          position: absolute;
+          top: 10px;
+          right: 20px;
+        }
+        & button {
+          position: absolute;
+          bottom: 0;
+          height: 50%;
+          width: 100%;
+          border-radius: 1.6em;
+          border: 0.2em solid var(--primary-light-color);
+          &:hover {
+            box-shadow: none;
+          }
+        }
+      }
+      .item {
+        width: 100%;
+        font-size: 0.6em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>shopLab</h1>
+  <div class="addItemBoxCover">
+    <button class="addItemBoxButton">
+      Add Item
+    </button>
+  </div>
+  <div class="inputCover">
+    <input type="text" id="userInput" required="required" placeholder="Item Name - Quantity" autocomplete="off" autofocus="autofocus" style="grid-area: inputCover;" />
+    <div style="grid-area: clearButton;">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <button type="button" style="grid-area: button;">Confirm Details</button>
+  </div>
+  <ul></ul>
+  <script>
+    const addItemBoxCover = document.querySelector(".addItemBoxCover");
+    const inputCover = document.querySelector(".inputCover");
+    const clearButton = inputCover.querySelector("div");
+    const addItemBoxButton = document.querySelector(".addItemBoxButton");
+
+    function clearInput() {
+      if (inputCover.querySelector("input").value != "") {
+        inputCover.querySelector("input").value = "";
+      }
+      else {
+        inputCover.style.display = "none";
+        addItemBoxButton.classList.remove("active");
+        addItemBoxButton.textContent = "Add Item";
+      }
+    }
+    clearButton.addEventListener("click", clearInput);
+
+    // Toggle user input visibility
+    const toggleUserInputDisplay = function() {
+      if (addItemBoxButton.classList.contains("active")) {
+        addItemBoxButton.classList.remove("active");
+        addItemBoxButton.textContent = "Add Item";
+        inputCover.style.display = "none";
+        inputCover.querySelector("input").value = "";
+      } else {
+        addItemBoxButton.classList.add("active");
+        addItemBoxButton.textContent = "Decline";
+        inputCover.style.display = "flex";
+        inputCover.querySelector("input").focus();
+      }
+    };
+    addItemBoxButton.addEventListener("click", toggleUserInputDisplay);
+
+    // Function to add a new item
+    const addItem = function() {
+      const userInput = document.querySelector("#userInput");
+      if (userInput.value != "") {
+        const item = document.createElement("li");
+        item.classList.add("item");
+
+        const checkbox = document.createElement("input");
+        checkbox.setAttribute("type", "checkbox");
+        item.appendChild(checkbox);
+
+        const itemName = document.createElement("input");
+        itemName.setAttribute("type", "text");
+        itemName.setAttribute("disabled", "disabled");
+        itemName.value = userInput.value;
+        item.appendChild(itemName);
+
+        const editButton = document.createElement("div");
+        const editButtonIcon = document.createElement("i");
+        editButtonIcon.classList.add("fa", "fa-pen");
+        editButton.appendChild(editButtonIcon);
+        item.appendChild(editButton);
+
+        const deleteItemButton = document.createElement("button");
+        deleteItemButton.classList.add("deleteItemButton");
+        deleteItemButton.textContent = "Remove";
+        item.appendChild(deleteItemButton);
+
+        // Add item to the DOM
+        document.querySelector(".inputCover").insertAdjacentElement("afterend", item);
+
+        // Add event listeners for editing, deleting, and checking the item
+        checkbox.addEventListener("click", function() {
+          if (checkbox.checked) {
+            item.classList.add("checked");
+          } else {
+            item.classList.remove("checked");
+          }
+        });
+
+        editButton.addEventListener("click", function() {
+          const isDisabled = itemName.disabled;
+          if (isDisabled) {
+            editButton.classList.add("active");
+            editButtonIcon.classList.remove("fa-pen");
+            editButtonIcon.classList.add("fa-check");
+            itemName.classList.add("editMode");
+            itemName.removeAttribute("disabled");
+            itemName.focus();
+          } else {
+            editButton.classList.remove("active");
+            itemName.setAttribute("disabled", "disabled");
+            editButtonIcon.classList.add("fa-pen");
+            editButtonIcon.classList.remove("fa-check");
+            itemName.classList.remove("editMode");
+          }
+        });
+
+        deleteItemButton.addEventListener("click", function() {
+          item.remove();
+          saveItems(); // Update storage when deleting
+        });
+
+        // Save items after adding a new one
+        saveItems();
+
+        // Reset input visibility
+        toggleUserInputDisplay();
+      } else {
+        userInput.focus();
+      }
+    };
+    inputCover.querySelector("button").addEventListener("click", addItem);
+
+    // Function to save items in localStorage
+    function saveItems() {
+      const items = [];
+      document.querySelectorAll(".item").forEach(item => {
+        const isDisabled = item.querySelector("input[type='text']").disabled;
+        const itemName = item.querySelector("input[type='text']").value;
+        const isChecked = item.querySelector("input[type='checkbox']").checked;
+        items.push({ disabled: isDisabled , name: itemName , checked: isChecked });
+      });
+      localStorage.setItem("todoItems", JSON.stringify(items));
+    }
+
+    // Function to load items from localStorage
+    function loadItems() {
+      const items = JSON.parse(localStorage.getItem("todoItems"));
+      if (items) {
+        items.forEach(({ disabled, name, checked }) => {
+          const item = document.createElement("li");
+          item.classList.add("item");
+
+          const checkbox = document.createElement("input");
+          checkbox.setAttribute("type", "checkbox");
+          checkbox.checked = checked;
+          item.appendChild(checkbox);
+
+          const itemName = document.createElement("input");
+          itemName.setAttribute("type", "text");
+          itemName.setAttribute("disabled", "disabled");
+          itemName.value = name;
+          item.appendChild(itemName);
+
+          const editButton = document.createElement("div");
+          const editButtonIcon = document.createElement("i");
+          editButtonIcon.classList.add("fa", "fa-pen");
+          editButton.appendChild(editButtonIcon);
+          item.appendChild(editButton);
+
+          const deleteItemButton = document.createElement("button");
+          deleteItemButton.classList.add("deleteItemButton");
+          deleteItemButton.textContent = "Remove";
+          item.appendChild(deleteItemButton);
+
+          document.querySelector("ul").appendChild(item);
+
+          // Reapply event listeners
+          checkbox.addEventListener("click", function() {
+            if (checkbox.checked) {
+              item.classList.add("checked");
+            } else {
+              item.classList.remove("checked");
+            }
+          });
+
+          editButton.addEventListener("click", function() {
+            const isDisabled = itemName.disabled;
+            if (isDisabled) {
+              editButton.classList.add("active");
+              editButtonIcon.classList.remove("fa-pen");
+              editButtonIcon.classList.add("fa-check");
+              itemName.classList.add("editMode");
+              itemName.removeAttribute("disabled");
+              itemName.focus();
+              name = itemName.value;
+            } else {
+              editButton.classList.remove("active");
+              itemName.setAttribute("disabled", "disabled");
+              editButtonIcon.classList.add("fa-pen");
+              editButtonIcon.classList.remove("fa-check");
+              itemName.classList.remove("editMode");
+              name = itemName.value;
+            }
+            saveItems();
+          });
+
+          deleteItemButton.addEventListener("click", function() {
+            item.remove();
+            saveItems();
+          });
+        });
+      }
+    }
+
+    // Load items when the page is refreshed
+    window.addEventListener("load", loadItems);
+  </script>
+</body>
+</html>
